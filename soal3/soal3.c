@@ -40,8 +40,8 @@ char* caesar(char* in, int shift) {
 
 int main(int argc, char *argv[]) {
 	if (argc != 2 || (strcmp(argv[1], "-z") != 0 && strcmp(argv[1], "-x") != 0)) {
-		printf("Wrong argument");
-		return 1;
+		printf("Wrong argument\n");
+		exit(EXIT_FAILURE);
 	}
 	
 	pid_t pid = fork(), sid = setsid();
