@@ -72,13 +72,18 @@ int main(int argc, char *argv[]) {
 	close(STDIN_FILENO);
 	close(STDOUT_FILENO);
 	close(STDERR_FILENO);
+	
+	pid_t child_id = fork();
+	if(child_id < 0) exit(0);
+	if(child_id == 0)
+	    execl("/bin/chmod", "/bin/chmod", "u+x", "Killer.sh", NULL);
 
 	while (1) {
 		char *pathName = getNameByTime();
 		
 		printf("%s\n", pathName);
 
-		pid_t child_id = fork();
+		child_id = fork();
 
 		if (child_id == 0) {
 			execl("/bin/mkdir", "/bin/mkdir", pathName, NULL);
