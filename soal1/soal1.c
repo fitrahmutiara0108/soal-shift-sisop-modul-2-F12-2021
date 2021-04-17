@@ -56,7 +56,7 @@ int main()
   if (pid > 0) {
     exit(EXIT_SUCCESS);
   }
-
+  
   umask(0);
 
   sid = setsid();
@@ -64,7 +64,7 @@ int main()
     exit(EXIT_FAILURE);
   }
 
-  if ((chdir("/home/miqbdi/Sisop/modul_2_fix")) < 0) {
+  if ((chdir("/home/$USER/Sisop/soal-shift-sisop-modul-2-F12-2021/soal1")) < 0) {
     exit(EXIT_FAILURE);
   }
   
