@@ -11,9 +11,9 @@
 char animals[50][100]={0};
 char directory[] = "/home/tiara/modul2/petshop";
 
-void group_images(char *img, char *fileName){
+void group_images(char *img, char *fName){
 	int status;
-	char	*jenis = strtok(fileName, ";"), 
+	char	*jenis = strtok(fName, ";"), 
 			*nama = strtok(NULL, ";"),
 			*umur = strtok(NULL, ";"),
 			filePath[300], textPath[400], newName[400], text[200];
@@ -74,17 +74,17 @@ int main () {
 	if(dir != NULL){
 		while((direntPtr = readdir(dir))){
 			if(direntPtr->d_type == DT_REG){
-				char fileName[100], temp[100];
+				char fName[100], temp[100];
 				
-				memset(fileName, 0, sizeof(fileName));
+				memset(fName, 0, sizeof(fName));
 				memset(temp, 0, sizeof(temp));
-				strcpy(fileName, direntPtr->d_name);
+				strcpy(fName, direntPtr->d_name);
 				
 				if(direntPtr->d_name[0] != '.'){
 					i = 0;
-					while (fileName[i] != ';'){
-						temp[i] = fileName[i];
-						if(fileName[++i] == ';') break;
+					while (fName[i] != ';'){
+						temp[i] = fName[i];
+						if(fName[++i] == ';') break;
 					}
 					
 					bool check = false;
@@ -115,14 +115,14 @@ int main () {
 	if(dir != NULL){
 		while((direntPtr = readdir(dir))){
 			if(direntPtr->d_type == DT_REG){
-				char fileName[300], source[500];
+				char fName[300], source[500];
 				
 				sprintf(source, "%s/%s", directory, direntPtr->d_name);
-				strcpy(fileName, direntPtr->d_name);
+				strcpy(fName, direntPtr->d_name);
 				
-                fileName[strlen(fileName)-4] = '\0';
+                fName[strlen(fName)-4] = '\0';
                 
-                char *firstAnimal = strtok(fileName, "_");
+                char *firstAnimal = strtok(fName, "_");
                 char *secondAnimal = strtok(NULL, "_");
 				
 				if(secondAnimal) group_images(source, secondAnimal);
