@@ -56,15 +56,16 @@ int main()
   if (pid > 0) {
     exit(EXIT_SUCCESS);
   }
-  
+
   umask(0);
 
   sid = setsid();
   if (sid < 0) {
     exit(EXIT_FAILURE);
   }
-
-  if ((chdir("/home/$USER/Sisop/soal-shift-sisop-modul-2-F12-2021/soal1")) < 0) {
+ 
+ // KALO NYOBA JGN LUPA GANTI DIREKTORI NYA WOI
+  if ((chdir("/home/miqbdi/Sisop/soal-shift-sisop-modul-2-F12-2021/soal1")) < 0) {
     exit(EXIT_FAILURE);
   }
   
