@@ -145,7 +145,7 @@ if(child_id == 0)
 
 ### Error/kendala yang dialami selama pengerjaan
 - Gambar yang di-download sempat tidak muncul sebagai file gambar, dan folder tidak terhapus setelah di-zip.
-- Beberapa kali syntax error seperti pada gambar berikut.
+- Beberapa kali syntax error seperti pada gambar berikut.\
 ![Screenshot_30](https://user-images.githubusercontent.com/70105993/115445823-f19ee700-a248-11eb-8ee7-4bb1bb70554f.png)
-- Beberapa kali terkendala pada file **Killer.sh** untuk argumen `-x`, di mana pada saat **Killer.sh** dijalankan, parent process dihentikan tetapi child process terus berjalan dan terus menghasilkan child process baru setelah direktori yang sedang diproses berhasil di-zip dan dihapus.
+- Beberapa kali terkendala pada file **Killer.sh** untuk argumen `-x`, di mana pada saat **Killer.sh** dijalankan, parent process dihentikan tetapi child process terus berjalan dan terus menghasilkan child process baru setelah direktori yang sedang diproses berhasil di-zip dan dihapus.\
 ![Screenshot_33](https://user-images.githubusercontent.com/70105993/115446199-6b36d500-a249-11eb-84aa-c4800f8dbbaf.png)
