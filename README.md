@@ -7,7 +7,121 @@
 ## Soal 1
 
 ## Soal 2
+### Poin (a)
+Mengunzip file yg bernama pets.zip ke direktori yg sudah di declare di atas, yaitu /home/user/modul2/petshop
+- -p pada mkdir digunakan untuk untuk membatalkan pembuatan folder bila nama folder sudah ada
+- chmod digunakan untuk mengatur hak akses atau permission terhadap suatu file/direktori kepada user
+- `(strcmp(direntPtr->d_name, ".") != 0) && (strcmp(direntPtr->d_name, "..") != 0))` untuk menghindari file . dan juga ..
+- rm pada `/bin/rm` digunakan untuk menghapus folder yang tidak perlu
+```c
+pid_t child_id = fork();
+if (child_id == 0) execl("/bin/mkdir", "/bin/mkdir", "-p", directory, NULL);
+else (wait(&status) > 0);
+	
+child_id = fork();
+if (child_id == 0) execl("/bin/unzip", "/bin/unzip", "pets.zip", "-d", directory, NULL);
+else (wait(&status) > 0);
+	
+	//untuk mengatur hak akses atau permission terhadap suatu file/direktori kepada user
+if(child_id == 0) execl("/bin/chmod", "/bin/chmod", "u+w", directory, NULL);
+else (wait(&status) > 0);
 
+while((direntPtr = readdir(dir)) != NULL){
+if ((direntPtr->d_type == DT_DIR) && (strcmp(direntPtr->d_name, ".") != 0) && (strcmp(direntPtr->d_name, "..") != 0)){
+    	child_id = fork();
+		if(child_id < 0){
+    		exit(EXIT_FAILURE);
+		}
+		if(child_id == 0){
+		char pathName[300];
+		sprintf(pathName, "%s/%s", directory, direntPtr->d_name);
+                execl("/bin/rm", "/bin/rm", "-r", pathName, NULL);
+		}
+	}
+}
+```
+### Poin (b)
+Membuat folder untuk setiap jenis peliharaan yang ada dalam zip
+- melakukan iterasi dari 0 hingga count 
+- `mkdir` digunakan untuk membuat direktori dengan nama variabel folderName
+```c
+for(i = 0; i < count; i++){
+	child_id = fork();
+	if(child_id < 0){
+	exit(EXIT_FAILURE);
+	}
+	if(child_id == 0){
+	char folderName[200];
+	sprintf(folderName, "%s/%s", directory, animals[i]);
+        execl("/bin/mkdir", "/bin/mkdir", folderName, NULL);
+	}
+}
+```
+- Sebelumnya, masing-masing hewan dilakukan iterasi untuk diambil tiap nilai nama file dengan delimiter `;`
+```c
+while (fileName[i] != ';'){
+	temp[i] = fileName[i];
+	if(fileName[++i] == ';') break;
+}
+```
+### Poin (c)
+Pada poin ini, program akan memindahkan foto ke folder dengan kategori yang sesuai dan di rename dengan nama peliharaan
+- cp pada `/bin/cp` melakukan copy file 
+```c
+pid_t child_id = fork();		
+if(child_id < 0)  exit(EXIT_FAILURE);
+if(child_id == 0) execl("/bin/cp", "/bin/cp", img, newName, NULL);
+while(wait(&status) > 0);
+```
+- Sebelum di copy pada sintaks di atas di dalam fungsi, melakukan copy dengan strcpy dari `direntPtr->d_name` ke fileName
+- `direntPtr->d_name` merupakan nama-nama jenis hewan 
+- `fileName[strlen(fileName)-4] = '\0'` digunakan untuk omit atau menghilangkan extensionnya
+```c
+char fileName[300], source[500];
+//lanjutan poin c sebelum dicopy di fungsi diatas, direntptr d name itu jenis hewan 
+sprintf(source, "%s/%s", directory, direntPtr->d_name);
+strcpy(fileName, direntPtr->d_name);
+
+fileName[strlen(fileName)-4] = '\0';
+```
+### Poin (d)
+Pada poin  ini satu foto yang terdapat satu atau lebih dari peliharaan, maka foto harus di pindah ke masing-masing kategori folder yang sesuai
+- `strtok(fileName, "_")` dan `strtok(NULL, "_")` digunakan untuk melakukan pemisahan nama file dengan delimiter `_` sehingga didapatkan nama hewan tiap individu
+- rm pada `/bin/rm` berfungsi untuk menghapus folder yang tidak perlu
+```c
+char *firstAnimal = strtok(fileName, "_");
+char *secondAnimal = strtok(NULL, "_");
+				
+if(secondAnimal) group_images(source, secondAnimal);
+group_images(source, firstAnimal);
+				
+child_id = fork();
+if(child_id < 0)  exit(EXIT_FAILURE);
+if(child_id == 0) execl("/bin/rm", "/bin/rm", "-rf", source, NULL);
+				
+while(wait(&status) > 0);
+```
+### Poin (e)
+Membuat sebuah file "keterangan.txt" yang berisi nama dan umur semua peliharaan dalam folder tersebut
+-  strtok pada kasus ini digunakan untuk membagi string menjadi beberapa bagian yang dibatasi oleh karakter `;`
+```c
+char	*jenis = strtok(fileName, ";"), 
+	*nama = strtok(NULL, ";"),
+	*umur = strtok(NULL, ";"),
+```
+- sprintf() digunakan untuk dapat menulis string yang diformat ke variabel
+- `sprintf(text, "nama : %s\numur : %s tahun\n\n", nama, umur)` untuk membuat file "keterangan.txt" yang di dalamnya berisi nama dan umur
+```c
+sprintf(filePath, "%s/%s", directory, jenis);
+sprintf(textPath, "%s/keterangan.txt", filePath);
+sprintf(newName, "%s/%s.jpg", filePath, nama);
+sprintf(text, "nama : %s\numur : %s tahun\n\n", nama, umur);
+```
+### Kendala dan Error selama pengerjaan
+- Kesalahan pada sintaks `char animals[50][100]` harusnya `char animals[50][100]={0}`
+![messageImage_1618657171431](https://user-images.githubusercontent.com/81247727/115494826-998bd300-a290-11eb-8c9c-79c1cfaa97c6.jpg)
+- Kendala lainnya yaitu masih belum terbiasa dengan daemon, exec, dan fork
+ 
 ## Soal 3
 Untuk memastikan argumen yang diberikan pengguna benar, maka diletakkan kode berikut di awal program.
 ```c
