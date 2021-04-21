@@ -80,7 +80,7 @@ if(dir != NULL){
 }
 ```
 Kemudian folder dibuat untuk setiap jenis peliharaan yang ada dalam array `animals[50][100]`.
-- Iterasi dilakukan dari 0 hingga count-1 (sebanyak total jumlah jenis binatang unik) 
+- Iterasi dilakukan sebanyak `count` kali (total jumlah jenis binatang unik). 
 - `mkdir` digunakan untuk membuat direktori dengan nama variabel folderName.
 ```c
 for(i = 0; i < count; i++){
