@@ -5,6 +5,143 @@
 - M. Iqbal Abdi (05111940000151)
 
 ## Soal 1
+Pada program ini, akan dilakukan process daemon dengan sleep setiap `satu` detik untuk mengecek 2 hal
+- Apakah sudah waktunya ulang tahun Stevany pada 9 April Pukul 22:22:00
+- Apakah sudah 6 jam sebelum waktu ulang tahun Stevany yaitu pada pukul 16:22:00
+
+<br />
+
+### Poin(a) Inisiasi
+Blok kode dibawah akan menginisiasi values untuk variabel yang akan digunakan sebagai penanda waktu ulang tahun.
+```c
+int stev_bhour = 22;
+int stev_bmin = 22;
+int stev_bday = 9;
+int stev_bmonth = 3;
+```
+Lalu potongan kode ini akan membuat variabel bertipe `time_t` untuk mengambil waktu yang ada pada sistem. Lalu valuesnya akan diinisasi ke struct bertipe `tm'
+```c
+ time_t now = time(NULL);
+ struct tm *t = localtime(&now);
+ ```
+ <br />
+
+### Poin(b) Check dan jalankan
+Blok kode ini akan mengecek apakah nilai dari `struct tm *t` sudah sesuai dengan variabel penanda ulang tahun. Jika iya, maka akan dibentuk child process `child_id` yang digunakan untuk men-zip folder `Musyik`, `Pyoto`, `Fylm` dengan outputnya berupa zip baru `Lopyu_Stevany.zip` menggunakan fungsi `execv()`.
+
+```c
+ if (stev_bhour == t->tm_hour && stev_bmin == t->tm_min && t->tm_sec == 0
+        && stev_bday == t->tm_mday && stev_bmonth == t->tm_mon)
+    {
+        pid_t child_id;
+        if ((child_id = fork()) == 0)
+        {
+            char *zipFile[] = {"zip", "-vmqr", "Lopyu_Stevany.zip", "Musyik", "Pyoto", "Fylm", NULL};
+            execv("/bin/zip", zipFile);
+        }
+        while((wait(&status)) > 0);
+    }
+```
+Blok ini akan mengecek apakah waktu sudah menunjukkan 6 jam sebelum waktu ulang tahun. Pada blok kode ini akan dibentuk child process yaitu `child1`. Lalu `child1` akan membentuk kembali 2 child process berupa `pid1` dan `pid2`, dan `pid1` akan membentuk kembali `pid2` sebagai child nya sehingga pada blok ini akan terbentuk 4 process.
+- Process pertama merupakan process yang dilakukan oleh `pid2` yang parent nya adalah `pid1`. Akan dilakukan `execv("/bin/wget", ...)` untuk mendownload dari link yang berisi folder `FILM` dam outputnya berupa file `Film_for_Stevany.zip`.
+- Process kedua `pid1`menunggu child process nya yaitu`pid2` untuk selesai. Lalu akan dilakukan `execv("/bin/unzip", ...)` pada file `Film_for_Stevany.zip` untuk mengekstak isi file nya
+- Process ketiga merupakan process dari `pid2` yang memiliki parent `child1`. Process ini akan membentuk folder baru dengan nama `Fylm` dengan fungsi `execv("/bin/mkdir", ...)`
+- Process keempat merupakan process dari `child1` sendiri. Process ini akan menunggu child dirinya `pid2` untuk selesai, lalu akan memindahkan seluruh isi Folder `FILM` ke folder `Fylm` melalui fungsi `moveFiles("FILM","Fylm")`. Setelah itu folder `FILM` yang sudah kosong akan dihapus dengan fungsi `execvp("rm", ...)`
+
+```c
+else if (stev_bhour - 6 == t->tm_hour && stev_bmin == t->tm_min && t->tm_sec == 0
+            && stev_bday == t->tm_mday && stev_bmonth == t->tm_mon)
+    {
+
+        pid_t child1, child2, child3, child4;
+
+        if ((child1 = fork()) == 0)
+        {
+            pid_t pid1 = fork();
+            pid_t pid2 = fork();
+            if (pid1 == 0)
+            {
+                if (pid2 == 0)
+                {
+                    char *linkfilm[] = {"wget", "--no-check-certificate", "https://drive.google.com/uc?id=1ktjGgDkL0nNpY-vT7rT7O6ZI47Ke9xcp&export=download",
+                    "-O", "Film_for_Stevany.zip","-q", NULL};
+                    execv("/bin/wget", linkfilm);
+                }
+                else
+                {
+                    while((wait(&status)) > 0);
+                    char *extfilm[] = {"unzip","-qq","Film_for_Stevany.zip",NULL};
+                    execv("/bin/unzip", extfilm);
+                }
+            }
+            else
+            {
+                if (pid2 == 0)
+                {
+                    char *makefolder1[] = {"mkdir","Fylm", NULL};
+                    execv("/bin/mkdir", makefolder1);
+                }
+                else
+                {
+                    while((wait(&status)) > 0);
+                    moveFiles("FILM", "Fylm");
+                    char *rmFilm[] = {"rm", "-fr", "FILM", NULL};
+                    execvp("rm", rmFilm);
+                }
+            }
+        }
+```
+Untuk process selanjutnya untuk file `Musik_for_Stevany.zip` dan `Foto_for_Stevany.zip` sama dengan process diatas
+<br />
+<br />
+
+### Poin(c) Iterasi setiap File
+Blok kode selanjutnya akan membuka `foldername` melalui pointer `*dir`, lalu akan dicek apakah direktori tersebut kosong atau tidak. Jika tidak akan dilakukan iterasi pada isi folder tersebut.
+```c
+void moveFiles(char *folderName, char *stevFolderName)
+{
+    int status;
+    struct dirent *dp;
+    DIR *dir = opendir(folderName);
+
+    if (dir != NULL)
+    {
+        while ((dp = readdir(dir)))
+        {
+           ...
+        }
+
+        (void)closedir(dir);
+    }
+}
+```
+Pada tiap iterasi, akan dibuat child process baru dengan nama `ChildMove`. Jika pada folder yang dibuka memiliki file/folder dengan awalan `(dot)` maka keluar dari process. Jika tidak maka buat array `path`. Pada `path` ini akan diisi nama direktori saat ini. Kemudian akan diambil nama file pertama pada direktory tersebut dengan fungsi `dp->d_name`. Lalu fungsi `execv("/bin/mv",move)` akan memindahkan setiap file pertama pada direktori ke folder `stevFolderName`.
+```c
+	...
+        while ((dp = readdir(dir)))
+        {
+            pid_t childMove = fork();
+            if (childMove == 0 && (strcmp(dp->d_name, ".") == 0 && strcmp(dp->d_name, "..") == 0))
+            {
+                exit(EXIT_SUCCESS);
+            }
+            if (childMove == 0)
+            {
+                //printf("%s\n", dp->d_name);
+                char path[200];
+                // Construct new path from our base path
+                strcpy(path, folderName);
+                strcat(path, "/");
+                strcat(path, dp->d_name);
+                //move files
+                char *move[] = {"mv", path, stevFolderName, NULL};
+                execv("/bin/mv", move);
+            }
+            while (wait(&status) > 0);
+        }
+	...
+
+```
 
 ## Soal 2
 - Array `animals[50][100]` dibuat untuk menyimpan nama-nama binatang yang terdapat pada berkas gambar.
