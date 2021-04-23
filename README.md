@@ -8,7 +8,6 @@
 Pada program ini, akan dilakukan process daemon dengan sleep setiap `satu` detik untuk mengecek 2 hal
 - Apakah sudah waktunya ulang tahun Stevany pada 9 April Pukul 22:22:00
 - Apakah sudah 6 jam sebelum waktu ulang tahun Stevany yaitu pada pukul 16:22:00
-
 <br />
 
 ### Poin(a) Inisiasi
