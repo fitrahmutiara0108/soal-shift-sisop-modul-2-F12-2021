@@ -9,7 +9,6 @@ Pada program ini, akan dilakukan process daemon dengan sleep setiap `satu` detik
 - Apakah sudah waktunya ulang tahun Stevany pada 9 April Pukul 22:22:00
 - Apakah sudah 6 jam sebelum waktu ulang tahun Stevany yaitu pada pukul 16:22:00
 <br />
-
 ### Poin(a) Inisiasi
 Blok kode dibawah akan menginisiasi values untuk variabel yang akan digunakan sebagai penanda waktu ulang tahun.
 ```c
