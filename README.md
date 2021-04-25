@@ -204,7 +204,7 @@ Pada tiap iterasi, akan dibuat child process baru dengan nama `ChildMove`. Jika 
 
 ```
 ### Kendala dan error selama pengerjaan
-- Lupa untuk menyetting kembali tanggal pada vm setelah melakukan `set --date` di terminal sehingga saat file nya di upload ke repo github tanggal nya tidak sesuai dgn tanggal sebenarnya
+- Lupa untuk menyetting kembali tanggal pada vm setelah melakukan `date --set` di terminal sehingga saat file nya di upload ke repo github tanggal nya tidak sesuai dgn tanggal sebenarnya
 - Lupa untuk menginput fungsi `wait()` saat iterasi pada setiap file di `foldername` sehingga yang terjadi adalah `infinite fork` dan membuat vm ubuntu menjadi hang
 - Pada parent process paling atas (process pertama) saya menggunakan `wait(NULL)` sebagai fungsi untuk menunggu semua child process nya selesai, bukan ` while((wait(&status)) > 0)`. Dan yang terjadi adalah adanya file tambahan berupa `.log` selama proses mendownload file
 ![image](https://user-images.githubusercontent.com/75016595/115977940-88033d80-a5a6-11eb-9460-0f7965747a68.png)
