@@ -22,9 +22,66 @@ Lalu potongan kode ini akan membuat variabel bertipe `time_t` untuk mengambil wa
  time_t now = time(NULL);
  struct tm *t = localtime(&now);
  ```
- <br />
 
-### Poin(b) Check dan jalankan
+### Poin (b) buat daemon
+Agar program nya berjalan secara terus menerus, akan dibuat daemon dengan `sleep` selama satu detik sehingga program akan terus mengecek apakah sudah waktunya ulang tahun atau sudah 6 jam sebelum waktunya ulang tahun.
+```c
+#include <stdio.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <wait.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+#include <sys/stat.h>
+#include <dirent.h>
+
+int main()
+{
+    pid_t pid, sid;        // Variabel untuk menyimpan PID
+    pid = fork();     // Menyimpan PID dari Child Process
+    int daemonStatus;
+    int status;
+
+  if (pid < 0) {
+    exit(EXIT_FAILURE);
+  }
+
+  if (pid > 0) {
+    exit(EXIT_SUCCESS);
+  }
+
+  umask(0);
+
+  sid = setsid();
+  if (sid < 0) {
+    exit(EXIT_FAILURE);
+  }
+
+ // KALO NYOBA JGN LUPA GANTI DIREKTORI NYA WOI
+  if ((chdir("/home/miqbdi/Sisop/soal-shift-sisop-modul-2-F12-2021/soal1")) < 0) {
+    exit(EXIT_FAILURE);
+  }
+
+  close(STDIN_FILENO);
+  close(STDOUT_FILENO);
+  close(STDERR_FILENO);
+
+  int stev_bhour = 22;
+  int stev_bmin = 22;
+  int stev_bday = 9;
+  int stev_bmonth = 3;
+
+  while (1)
+  {
+	...
+    sleep(1);
+  }
+
+  return 0;
+}
+```
+### Poin(c) Check dan jalankan
 Blok kode ini akan mengecek apakah nilai dari `struct tm *t` sudah sesuai dengan variabel penanda ulang tahun. Jika iya, maka akan dibentuk child process `child_id` yang digunakan untuk men-zip folder `Musyik`, `Pyoto`, `Fylm` dengan outputnya berupa zip baru `Lopyu_Stevany.zip` menggunakan fungsi `execv()`.
 
 ```c
@@ -99,8 +156,8 @@ Untuk process selanjutnya untuk file `Musik_for_Stevany.zip` dan `Foto_for_Steva
 <br />
 <br />
 
-### Poin(c) Iterasi setiap File
-Blok kode selanjutnya akan membuka `foldername` melalui pointer `*dir`, lalu akan dicek apakah direktori tersebut kosong atau tidak. Jika tidak akan dilakukan iterasi pada isi folder tersebut.
+### Poin(d) Iterasi setiap File
+Pada fungsi `moveFiles`, blok kode selanjutnya akan membuka `foldername` melalui pointer `*dir`, lalu akan dicek apakah direktori tersebut kosong atau tidak. Jika tidak akan dilakukan iterasi pada isi folder tersebut.
 ```c
 void moveFiles(char *folderName, char *stevFolderName)
 {
