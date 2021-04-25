@@ -8,7 +8,6 @@
 Pada program ini, akan dilakukan process daemon dengan sleep setiap `satu` detik untuk mengecek 2 hal
 - Apakah sudah waktunya ulang tahun Stevany pada 9 April Pukul 22:22:00
 - Apakah sudah 6 jam sebelum waktu ulang tahun Stevany yaitu pada pukul 16:22:00
-<br />
 
 ### Poin(a) Inisiasi
 Blok kode dibawah akan menginisiasi values untuk variabel yang akan digunakan sebagai penanda waktu ulang tahun.
@@ -41,18 +40,23 @@ Blok kode ini akan mengecek apakah nilai dari `struct tm *t` sudah sesuai dengan
         while((wait(&status)) > 0);
     }
 ```
-Blok ini akan mengecek apakah waktu sudah menunjukkan 6 jam sebelum waktu ulang tahun. Pada blok kode ini akan dibentuk child process yaitu `child1`. Lalu `child1` akan membentuk kembali 2 child process berupa `pid1` dan `pid2`, dan `pid1` akan membentuk kembali `pid2` sebagai child nya sehingga pada blok ini akan terbentuk 4 process.
+Blok ini akan mengecek apakah waktu sudah menunjukkan 6 jam sebelum waktu ulang tahun. Yang akan dibandingkan berupa nilai dari variabel inisiasi dengan element pada struct `*t`
+```c
+else if (stev_bhour - 6 == t->tm_hour && stev_bmin == t->tm_min && t->tm_sec == 0
+            && stev_bday == t->tm_mday && stev_bmonth == t->tm_mon)
+    {
+		...
+	}
+```
+Pada blok kode ini akan dibentuk child process yaitu `child1`. Lalu `child1` akan membentuk kembali 2 child process berupa `pid1` dan `pid2`, dan `pid1` akan membentuk kembali `pid2` sebagai child nya sehingga pada blok ini akan terbentuk 4 process. Contoh yang akan digunakan dibawah ini adalah pada file `Film_for_Stevany.zip`
 - Process pertama merupakan process yang dilakukan oleh `pid2` yang parent nya adalah `pid1`. Akan dilakukan `execv("/bin/wget", ...)` untuk mendownload dari link yang berisi folder `FILM` dam outputnya berupa file `Film_for_Stevany.zip`.
 - Process kedua `pid1`menunggu child process nya yaitu`pid2` untuk selesai. Lalu akan dilakukan `execv("/bin/unzip", ...)` pada file `Film_for_Stevany.zip` untuk mengekstak isi file nya
 - Process ketiga merupakan process dari `pid2` yang memiliki parent `child1`. Process ini akan membentuk folder baru dengan nama `Fylm` dengan fungsi `execv("/bin/mkdir", ...)`
 - Process keempat merupakan process dari `child1` sendiri. Process ini akan menunggu child dirinya `pid2` untuk selesai, lalu akan memindahkan seluruh isi Folder `FILM` ke folder `Fylm` melalui fungsi `moveFiles("FILM","Fylm")`. Setelah itu folder `FILM` yang sudah kosong akan dihapus dengan fungsi `execvp("rm", ...)`
 
 ```c
-else if (stev_bhour - 6 == t->tm_hour && stev_bmin == t->tm_min && t->tm_sec == 0
-            && stev_bday == t->tm_mday && stev_bmonth == t->tm_mon)
-    {
-
-        pid_t child1, child2, child3, child4;
+	...
+ 		pid_t child1, child2, child3, child4;
 
         if ((child1 = fork()) == 0)
         {
@@ -89,6 +93,7 @@ else if (stev_bhour - 6 == t->tm_hour && stev_bmin == t->tm_min && t->tm_sec == 
                 }
             }
         }
+	...
 ```
 Untuk process selanjutnya untuk file `Musik_for_Stevany.zip` dan `Foto_for_Stevany.zip` sama dengan process diatas
 <br />
@@ -141,7 +146,11 @@ Pada tiap iterasi, akan dibuat child process baru dengan nama `ChildMove`. Jika 
 	...
 
 ```
-
+### Kendala dan error selama pengerjaan
+- Lupa untuk menyetting kembali tanggal pada vm setelah melakukan `set --date` di terminal sehingga saat file nya di upload ke repo github tanggal nya tidak sesuai dgn tanggal sebenarnya
+- Lupa untuk menginput fungsi `wait()` saat iterasi pada setiap file di `foldername` sehingga yang terjadi adalah `infinite fork` dan membuat vm ubuntu menjadi hang
+- Pada parent process paling atas (process pertama) saya menggunakan `wait(NULL)` sebagai fungsi untuk menunggu semua child process nya selesai, bukan ` while((wait(&status)) > 0)`. Dan yang terjadi adalah adanya file tambahan berupa `.log` selama proses mendownload file
+![image](https://user-images.githubusercontent.com/75016595/115977940-88033d80-a5a6-11eb-9460-0f7965747a68.png)
 ## Soal 2
 - Array `animals[50][100]` dibuat untuk menyimpan nama-nama binatang yang terdapat pada berkas gambar.
 - String `directory` dibuat untuk menyimpan alamat direktori tempat dibuatnya folder dan sebagai tujuan untuk unzip.
@@ -159,11 +168,11 @@ Direktori `/home/user/modul2/petshop` yang dideklarasikan di atas dibuat terlebi
 pid_t child_id = fork();
 if (child_id == 0) execl("/bin/mkdir", "/bin/mkdir", "-p", directory, NULL);
 else (wait(&status) > 0);
-	
+
 child_id = fork();
 if (child_id == 0) execl("/bin/unzip", "/bin/unzip", "pets.zip", "-d", directory, NULL);
 else (wait(&status) > 0);
-	
+
 //untuk mengatur hak akses atau permission terhadap suatu file/direktori kepada user
 if(child_id == 0) execl("/bin/chmod", "/bin/chmod", "u+w", directory, NULL);
 else (wait(&status) > 0);
@@ -216,7 +225,7 @@ if(dir != NULL){
 }
 ```
 Kemudian folder dibuat untuk setiap jenis peliharaan yang ada dalam array `animals[50][100]`.
-- Iterasi dilakukan sebanyak `count` kali (total jumlah jenis binatang unik). 
+- Iterasi dilakukan sebanyak `count` kali (total jumlah jenis binatang unik).
 - `mkdir` digunakan untuk membuat direktori dengan nama variabel folderName.
 ```c
 for(i = 0; i < count; i++){
@@ -248,7 +257,7 @@ if(dir != NULL){
 			strcpy(fName, direntPtr->d_name);
 
 			fName[strlen(fName)-4] = '\0';
-			
+
 			char *firstAnimal = strtok(fileName, "_");
 			char *secondAnimal = strtok(NULL, "_");
 			...
@@ -262,21 +271,21 @@ if(dir != NULL){
 ```
 Pada fungsi `group_images`, program akan memindahkan foto ke folder dengan kategori yang sesuai dan di-rename dengan nama peliharaan.
 - Jenis, nama, dan umur hewan pada `fName` diambil menggunakan `strtok` hingga menemui delimiter `;`
-- `filePath` menyimpan direktori folder target, dan `newName` menyimpan direktori lengkap file gambar beserta namanya 
-- `cp` pada `/bin/cp` melakukan copy file ke folder target dan nama gambar diubah sesuai dengan `newName`. 
+- `filePath` menyimpan direktori folder target, dan `newName` menyimpan direktori lengkap file gambar beserta namanya
+- `cp` pada `/bin/cp` melakukan copy file ke folder target dan nama gambar diubah sesuai dengan `newName`.
 ```c
 void group_images(char *img, char *fName){
 	int status;
-	char	*jenis = strtok(fName, ";"), 
+	char	*jenis = strtok(fName, ";"),
 		*nama = strtok(NULL, ";"),
 		*umur = strtok(NULL, ";"),
 		filePath[300], textPath[400], newName[400], text[200];
-	
+
 	sprintf(filePath, "%s/%s", directory, jenis);
    	...
    	sprintf(newName, "%s/%s.jpg", filePath, nama);
 	...
-	pid_t child_id = fork();		
+	pid_t child_id = fork();
 	if(child_id < 0)  exit(EXIT_FAILURE);
 	if(child_id == 0) execl("/bin/cp", "/bin/cp", img, newName, NULL);
 	while(wait(&status) > 0);
@@ -305,19 +314,19 @@ File **keterangan.txt** dibuat dan diisi nama dan umur semua peliharaan dalam fo
 ```c
 void group_images(char *img, char *fName){
 	int status;
-	char	*jenis = strtok(fName, ";"), 
+	char	*jenis = strtok(fName, ";"),
 		*nama = strtok(NULL, ";"),
 		*umur = strtok(NULL, ";"),
 		filePath[300], textPath[400], newName[400], text[200];
-	
+
 	...
    	sprintf(textPath, "%s/keterangan.txt", filePath);
     	...
-    
+
 	sprintf(text, "nama : %s\numur : %s tahun\n\n", nama, umur);
-	
+
 	...
-	
+
 	FILE *keterangan = fopen(textPath, "a");
 	if(keterangan){
 		fprintf(keterangan, "%s", text);
@@ -331,7 +340,7 @@ void group_images(char *img, char *fName){
 - Kesalahan pada sintaks `char animals[50][100]` harusnya `char animals[50][100]={0}`
 ![messageImage_1618657171431](https://user-images.githubusercontent.com/81247727/115494826-998bd300-a290-11eb-8c9c-79c1cfaa97c6.jpg)
 - Kendala lainnya yaitu masih belum terbiasa dengan daemon, exec, dan fork.
- 
+
 ## Soal 3
 Untuk memastikan argumen yang diberikan pengguna benar, maka diletakkan kode berikut di awal program.
 ```c
@@ -347,7 +356,7 @@ Untuk membuat folder dengan format nama `[YYYY-mm-dd_HH:ii:ss]`, dapat digunakan
 ```c
 while (1) {
 		char *pathName = getNameByTime();
-		
+
 		printf("%s\n", pathName);
 
 		child_id = fork();
@@ -374,7 +383,7 @@ char* getNameByTime() {
 ```
 
 ### Poin (b)
-10 gambar di-download ke direktori yang telah dibuat dengan iterasi sebanyak 10 kali. Pertama, string `dir` yang akan menjadi direktori lengkap tempat disimpannya gambar beserta nama gambar tersebut diformat dengan `pathName` (nama folder yang dibuat di poin (a)) dan timestamp `YYYY-mm-dd_HH:ii:ss` yang didapatkan dari fungsi `getNameByTime()`. Selanjutnya gambar tersebut didownload dengan ukuran (n%1000) + 50 pixel, di mana n adalah detik Epoch Unix (`time(NULL)`), dengan memanggil command `wget` menggunakan `exec()`. 
+10 gambar di-download ke direktori yang telah dibuat dengan iterasi sebanyak 10 kali. Pertama, string `dir` yang akan menjadi direktori lengkap tempat disimpannya gambar beserta nama gambar tersebut diformat dengan `pathName` (nama folder yang dibuat di poin (a)) dan timestamp `YYYY-mm-dd_HH:ii:ss` yang didapatkan dari fungsi `getNameByTime()`. Selanjutnya gambar tersebut didownload dengan ukuran (n%1000) + 50 pixel, di mana n adalah detik Epoch Unix (`time(NULL)`), dengan memanggil command `wget` menggunakan `exec()`.
 ```c
 if (child_id == 0) {
 			int images = 10;
@@ -435,11 +444,11 @@ Setelah file tersebut dibuat, direktori (folder) akan di-zip menggunakan command
 ```c
         ...
         	char zipName[100];
-				
+
 		sprintf(zipName, "%s.zip", pathName);
 		execl("/bin/zip", "/bin/zip", "-r", zipName, pathName, NULL);
 	}
-      
+
 	while (wait(NULL) != child_id);
 	execl("/bin/rm", "/bin/rm", "-r", pathName, NULL);
     }
