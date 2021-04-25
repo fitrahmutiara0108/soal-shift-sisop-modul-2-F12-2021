@@ -17,14 +17,14 @@ int stev_bmin = 22;
 int stev_bday = 9;
 int stev_bmonth = 3;
 ```
-Lalu potongan kode ini akan membuat variabel bertipe `time_t` untuk mengambil waktu yang ada pada sistem. Lalu valuesnya akan diinisasi ke struct bertipe `tm'
+Lalu potongan kode ini akan membuat variabel bertipe `time_t` untuk mengambil waktu yang ada pada sistem. Lalu valuesnya akan diinisasi ke struct bertipe `tm`
 ```c
  time_t now = time(NULL);
  struct tm *t = localtime(&now);
  ```
 
 ### Poin (b) buat daemon
-Agar program nya berjalan secara terus menerus, akan dibuat daemon dengan `sleep` selama satu detik sehingga program akan terus mengecek apakah sudah waktunya ulang tahun atau sudah 6 jam sebelum waktunya ulang tahun.
+Agar program nya berjalan secara terus menerus, akan dibuat daemon dengan `sleep` selama satu detik sehingga program akan terus mengecek apakah sudah waktunya ulang tahun atau sudah 6 jam sebelum waktunya ulang tahun. Jangan lupa untuk mengganti working directory nya pada fungsi `chdir` agar programnya tidak `exit`
 ```c
 #include <stdio.h>
 #include <sys/types.h>
